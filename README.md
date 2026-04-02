@@ -1,3 +1,6 @@
+這是 Arthur General Planning Co., Ltd.
+アーサー総合企画 × 雅瑟科技創投
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
