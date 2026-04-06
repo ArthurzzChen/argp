@@ -162,27 +162,7 @@ export default function Home() {
               <p className="mt-3">
                 <strong>範疇：</strong>
                 代理各類精密感測器、流量計、壓力偵測及工業自動化核心組件。　
-                為什麼選擇我們？ (The ARGP Advantage)
-              </p>
-
-              <ol className="mt-3 list-decimal list-inside space-y-2">
-                <li>
-                  <strong>來源可靠保證 (Source Integrity)：</strong>
-                  嚴格的供應商管理體系，保證 100% 原廠正品，杜絕翻新與仿冒風險，守護您的產品品質。
-                </li>
-                <li>
-                  <strong>快速供應鏈反應 (Agile Supply Chain)：</strong>
-                  優化物流與庫存管理，大幅縮短前置時間 (Lead Time)，滿足瞬息萬變的市場需求。
-                </li>
-                <li>
-                  <strong>有效溝通與專業諮詢 (Strategic Communication)：</strong>
-                  20年以上的資深產業經驗，提供精確的解決方案。
-                </li>
-                <li>
-                  <strong>具競爭力的成本結構 (Cost Efficiency)：</strong>
-                  扁平化的組織與全球採購優勢，提供低廉的總持有成本 (TCO)，優化您的 BOM Cost。
-                </li>
-              </ol>
+                         </p>
             </div>
           </div>
         </div>
