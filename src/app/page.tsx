@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 type Lang = "zh" | "ja" | "en";
 
@@ -69,6 +69,12 @@ const content: Record<Lang, any> = {
     namePlaceholder: "您的稱呼",
     demandPlaceholder: "請簡述合作意向、時程或希望討論的主題。",
     submit: "送出",
+    emailLabel: "Email",
+    formSuccess:
+      "已送出：若系統有開啟郵件程式，請直接寄出即可。若沒有反應，請手動寄信至 art@argp.online。",
+    formErrorEmail: "請填寫有效的 Email。",
+    formErrorName: "請填寫姓名。",
+    formErrorNeeds: "請簡述需求。",
   },
   ja: {
     navServices: "サービス Services",
@@ -135,6 +141,12 @@ const content: Record<Lang, any> = {
     namePlaceholder: "お名前",
     demandPlaceholder: "ご要望・予定時期・ご相談内容をご記入ください。",
     submit: "送信",
+    emailLabel: "Email",
+    formSuccess:
+      "送信準備ができました。メールアプリが開いた場合はそのまま送信してください。開かない場合は art@argp.online へ手動でご連絡ください。",
+    formErrorEmail: "有効なメールアドレスを入力してください。",
+    formErrorName: "お名前を入力してください。",
+    formErrorNeeds: "ご相談内容を入力してください。",
   },
   en: {
     navServices: "Services",
@@ -200,6 +212,12 @@ const content: Record<Lang, any> = {
     namePlaceholder: "Your name",
     demandPlaceholder: "Tell us your goals, timeline, and key requirements.",
     submit: "Submit",
+    emailLabel: "Email",
+    formSuccess:
+      "Ready to send: if your email app opened, just send the message. If nothing opened, email art@argp.online manually.",
+    formErrorEmail: "Please enter a valid email address.",
+    formErrorName: "Please enter your name.",
+    formErrorNeeds: "Please describe your request.",
   },
 };
 
@@ -209,9 +227,53 @@ const LANGS: Array<{ id: Lang; label: string }> = [
   { id: "en", label: "EN" },
 ];
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function Home() {
   const [lang, setLang] = useState<Lang>("zh");
   const t = useMemo(() => content[lang], [lang]);
+
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formNeeds, setFormNeeds] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [formSuccess, setFormSuccess] = useState(false);
+
+  useEffect(() => {
+    setFormError(null);
+    setFormSuccess(false);
+  }, [lang]);
+
+  function handleContactSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setFormError(null);
+    setFormSuccess(false);
+
+    const name = formName.trim();
+    const email = formEmail.trim();
+    const needs = formNeeds.trim();
+
+    if (!name) {
+      setFormError(t.formErrorName);
+      return;
+    }
+    if (!email || !emailPattern.test(email)) {
+      setFormError(t.formErrorEmail);
+      return;
+    }
+    if (!needs) {
+      setFormError(t.formErrorNeeds);
+      return;
+    }
+
+    const subject = encodeURIComponent(`[argp.online] ${name}`);
+    const body = encodeURIComponent(
+      `Name / 姓名: ${name}\nEmail: ${email}\n\nMessage / 需求:\n${needs}`,
+    );
+    const mailto = `mailto:art@argp.online?subject=${subject}&body=${body}`;
+    window.location.href = mailto;
+    setFormSuccess(true);
+  }
 
   return (
     <div className="corp-page">
@@ -367,7 +429,12 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <form className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" aria-label="contact form">
+            <form
+              className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+              aria-label="contact form"
+              onSubmit={handleContactSubmit}
+              noValidate
+            >
               <div className="mb-4 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="name" className="mb-1.5 block text-xs font-semibold text-slate-700">
@@ -380,11 +447,17 @@ export default function Home() {
                     className="corp-input"
                     placeholder={t.namePlaceholder}
                     autoComplete="name"
+                    value={formName}
+                    onChange={(e) => {
+                      setFormName(e.target.value);
+                      setFormError(null);
+                      setFormSuccess(false);
+                    }}
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="mb-1.5 block text-xs font-semibold text-slate-700">
-                    Email
+                    {t.emailLabel}
                   </label>
                   <input
                     id="email"
@@ -393,6 +466,12 @@ export default function Home() {
                     className="corp-input"
                     placeholder="name@company.com"
                     autoComplete="email"
+                    value={formEmail}
+                    onChange={(e) => {
+                      setFormEmail(e.target.value);
+                      setFormError(null);
+                      setFormSuccess(false);
+                    }}
                   />
                 </div>
               </div>
@@ -400,12 +479,33 @@ export default function Home() {
                 <label htmlFor="needs" className="mb-1.5 block text-xs font-semibold text-slate-700">
                   {t.demand}
                 </label>
-                <textarea id="needs" name="needs" className="corp-textarea" placeholder={t.demandPlaceholder} />
+                <textarea
+                  id="needs"
+                  name="needs"
+                  className="corp-textarea"
+                  placeholder={t.demandPlaceholder}
+                  value={formNeeds}
+                  onChange={(e) => {
+                    setFormNeeds(e.target.value);
+                    setFormError(null);
+                    setFormSuccess(false);
+                  }}
+                />
               </div>
+              {formError ? (
+                <p className="mb-1 text-xs font-medium text-red-600" role="alert">
+                  {formError}
+                </p>
+              ) : null}
+              {formSuccess ? (
+                <p className="mb-1 text-xs font-medium text-emerald-700" role="status">
+                  {t.formSuccess}
+                </p>
+              ) : null}
               <p className="mb-4 text-xs text-slate-500">
                 * <a href="mailto:art@argp.online" className="text-[#1e4976]">art@argp.online</a>
               </p>
-              <button type="button" className="corp-btn-primary w-full sm:w-auto">
+              <button type="submit" className="corp-btn-primary w-full sm:w-auto">
                 {t.submit}
               </button>
             </form>
